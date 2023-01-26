@@ -17,12 +17,12 @@ const createUser = async (req, res) => {
         .status(400)
         .send({ status: false, msg: "Please send password" });
 
-    const emailExist = await emailModel.findOne({ email: email });
+    const emailExist = await userModel.findOne({ email: email });
 
     if (emailExist)
       return res.status(400).send({
         status: false,
-        msg: "Email already in use, please use different Email",
+        msg: "Email already in use, please send different Email",
       });
 
     let userCreated = await userModel.create(userData);

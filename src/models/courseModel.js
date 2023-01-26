@@ -13,7 +13,7 @@ const courseSchema = new mongoose.Schema(
     videoUrl: {
       type: String,
       required: true,
-      unique: true,
+      // unique: true,
       trim: true,
     },
     topics: [{ type: String }],

@@ -3,7 +3,7 @@ const userModel = require("../models/userModel");
 const { isValidObjectId } = require("mongoose");
 
 //AUTHENTICATE
-const authenticate = async (req, res) => {
+const authenticate = async (req, res, next) => {
   try {
     let token = req.headers["x-auth-token"];
     if (!token)
@@ -26,7 +26,7 @@ const authenticate = async (req, res) => {
   }
 };
 
-const autherise = async (req, res) => {
+const autherise = async (req, res, next) => {
   try {
     let userId = req.params.userId;
 
@@ -42,20 +42,25 @@ const autherise = async (req, res) => {
 
     let userData = await userModel.findById(userId);
 
+    console.log(userData);
     if (!userData || userData.isDeleted == true) {
-      return res.status(404).send({ msg: "user not exist for this id." });
+      return res
+        .status(404)
+        .send({ status: false, msg: "user not exist for this id." });
     }
-
+    console.log(req.userId);
     if (userData._id.toString() !== req.userId || userData.role == "Employee") {
       return res.status(403).send({
         status: false,
-        msg: "You are not autharised to do this operation",
+        msg: "You are not autharised to perform this operation",
       });
     }
+
+    next();
   } catch (error) {
     console.log("autherise error", error.message);
     return res.status(500).send({ status: false, msg: error.message });
   }
 };
 
-module.exports={authenticate, autherise}
+module.exports = { authenticate, autherise };
