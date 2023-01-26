@@ -11,12 +11,22 @@ const authenticate = async (req, res, next) => {
         .status(400)
         .send({ status: false, msg: "Token must be present" });
 
-    jwt.verify(token, "Batsys SecretKey", function (err, decoded) {
+    jwt.verify(token, "Batsys SecretKey", async function (err, decoded) {
       if (err) {
         return res.status(400).send({ status: false, msg: "Invalid Token" });
       } else {
         req.userId = decoded.userId;
         req.role = decoded.role;
+
+        let userData = await userModel.findById(req.userId);
+
+        console.log(userData);
+        if (!userData || userData.isDeleted == true) {
+          return res
+            .status(404)
+            .send({ status: false, msg: "User not exist for this id." });
+        }
+
         return next();
       }
     });
@@ -26,30 +36,23 @@ const authenticate = async (req, res, next) => {
   }
 };
 
+//AUTHERISE
 const autherise = async (req, res, next) => {
   try {
-    let userId = req.params.userId;
+    // let userId = req.params.userId;
 
-    if (!userId)
-      return res
-        .status(400)
-        .send({ status: false, msg: "Please provide valid user ID" });
+    // if (!userId)
+    //   return res
+    //     .status(400)
+    //     .send({ status: false, msg: "Please provide valid user ID" });
 
-    if (!isValidObjectId(userId))
-      return res
-        .status(400)
-        .send({ status: false, msg: "Please provide valid user ID" });
+    // if (!isValidObjectId(userId))
+    //   return res
+    //     .status(400)
+    //     .send({ status: false, msg: "Please provide valid user ID" });
 
-    let userData = await userModel.findById(userId);
-
-    console.log(userData);
-    if (!userData || userData.isDeleted == true) {
-      return res
-        .status(404)
-        .send({ status: false, msg: "user not exist for this id." });
-    }
     console.log(req.userId);
-    if (userData._id.toString() !== req.userId || userData.role == "Employee") {
+    if (req.role == "Employee") {
       return res.status(403).send({
         status: false,
         msg: "You are not autharised to perform this operation",
@@ -63,4 +66,14 @@ const autherise = async (req, res, next) => {
   }
 };
 
-module.exports = { authenticate, autherise };
+const superAuth=async(req, res, next)=>{
+  if (req.role !='Super Admin') {
+    return res.status(403).send({
+      status: false,
+      msg: "You are not autharised to perform this operation",
+    });
+  }
+  next()
+}
+
+module.exports = { authenticate, autherise, superAuth };

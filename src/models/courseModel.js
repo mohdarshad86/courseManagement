@@ -30,6 +30,10 @@ const courseSchema = new mongoose.Schema(
     isDeleted:{
       type:Boolean,
       default:false
+    },
+    superApproved:{
+      type:Boolean,
+      default:false
     }
   },
   { timestamps: true }

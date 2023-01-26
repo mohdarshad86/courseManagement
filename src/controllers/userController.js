@@ -1,6 +1,13 @@
 const userModel = require("../models/userModel.js");
 // const validation=require("../validation/validation")
 const jwt = require("jsonwebtoken");
+const crypto = require("crypto");
+
+function encryptPass(password){
+  return crypto
+  .pbkdf2Sync(password, "key", 100, 32, `sha512`)
+  .toString(`hex`);
+}
 
 const createUser = async (req, res) => {
   try {
@@ -16,6 +23,10 @@ const createUser = async (req, res) => {
       return res
         .status(400)
         .send({ status: false, msg: "Please send password" });
+
+    userData.password = encryptPass(password)
+
+      console.log(password);
 
     const emailExist = await userModel.findOne({ email: email });
 
@@ -36,7 +47,7 @@ const createUser = async (req, res) => {
 
 const loginUser = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    let { email, password } = req.body;
 
     if (!email)
       return res.status(400).send({ status: false, msg: "Please send email" });
@@ -44,6 +55,10 @@ const loginUser = async (req, res) => {
       return res
         .status(400)
         .send({ status: false, msg: "Please send password" });
+
+    password = encryptPass(password)
+
+console.log(password);
 
     const userExist = await userModel.findOne({
       email: email,
