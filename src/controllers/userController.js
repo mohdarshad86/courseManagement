@@ -29,48 +29,74 @@ const createUser = async (req, res) => {
 
     return res.status(201).send({ status: true, data: userCreated });
   } catch (error) {
-    console.log('Create user Error',error.message);
+    console.log("Create user Error", error.message);
     return res.status(500).send({ status: false, msg: error.message });
   }
 };
 
-const login = async (req, res) => {
+const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-  if (!email)
-    return res.status(400).send({ status: false, msg: "Please send email" });
-  if (!password)
-    return res.status(400).send({ status: false, msg: "Please send password" });
+    if (!email)
+      return res.status(400).send({ status: false, msg: "Please send email" });
+    if (!password)
+      return res
+        .status(400)
+        .send({ status: false, msg: "Please send password" });
 
-  const userExist = await userModel.findOne({
-    email: email,
-    password: password,
-    isDeleted: false,
-  });
-
-  if (!userExist) {
-    return res.status(404).send({
-      status: false,
-      msg: "User Not Exist for this Email and Password",
+    const userExist = await userModel.findOne({
+      email: email,
+      password: password,
+      isDeleted: false,
     });
-  }
 
-  let token = jwt.sign(
-    {
-      userId: userExist._id.toString(),
-      role: userExist.role,
-    },
-    "Batsys SecretKey"
-  );
+    if (!userExist) {
+      return res.status(404).send({
+        status: false,
+        msg: "User Not Exist for this Email and Password",
+      });
+    }
 
-  res.setHeader("x-auth-token", token);
+    let token = jwt.sign(
+      {
+        userId: userExist._id.toString(),
+        role: userExist.role,
+      },
+      "Batsys SecretKey"
+    );
 
-  return res.status(201).send({ status: true, data: token });
+    res.setHeader("x-auth-token", token);
+
+    return res.status(201).send({ status: true, data: token });
   } catch (error) {
-    console.log('Login error', error.message);
+    console.log("Login error", error.message);
     return res.status(500).send({ status: false, msg: error.message });
   }
 };
 
-module.exports = { createUser, login };
+const getUser = async function (req, res) {
+  let token = req.headers["x-Auth-token"];
+
+  if (!token) token = req.headers["x-auth-token"];
+
+  //If no token is present in the request header return error
+  if (!token) return res.send({ status: false, msg: "token must be present" });
+
+  let decodedToken = jwt.verify(token, "Batsys SecretKey");
+  if (!decodedToken)
+    return res.send({ status: false, msg: "token is invalid" });
+
+  console.log(decodedToken);
+
+  let userId = req.params.userId;
+
+  let userDetails = await userModel.findById(userId);
+
+  if (!userDetails)
+    return res.send({ status: false, msg: "No such user exists" });
+
+  res.send({ status: true, data: userDetails });
+};
+
+module.exports = { createUser, loginUser, getUser };

@@ -3,7 +3,14 @@ const router = express.Router();
 const userController=require("../controllers/userController")
 const courseController=require("../controllers/courseController")
 
+
+//USER
 router.post('/createUser', userController.createUser)
-router.post('/loginUser', userController.login)
+router.post('/loginUser', userController.loginUser)
+router.get('/getUser/:userId', userController.getUser)
+
+//COURSES
+router.post('/createCourse', courseController.createCourse)
+
 
 module.exports = router;
