@@ -22,7 +22,7 @@ const createCourse = async (req, res) => {
 
     return res.status(201).send({ status: true, data: courseCreated });
   } catch (error) {
-    console.log(error.message);
+    console.log('create user error',error.message);
     return res.status(500).send({ status: false, msg: error.message });
   }
 };

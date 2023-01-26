@@ -23,6 +23,10 @@ const userSchema = new mongoose.Schema(
       default: "Employee",
       enum:["Super Admin", "Admin", "Employee"]
     },
+    isDeleted:{
+      type:Boolean,
+      default:false
+    }
   },
   { timestamps: true }
 );

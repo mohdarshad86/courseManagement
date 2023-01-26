@@ -76,27 +76,43 @@ const loginUser = async (req, res) => {
 };
 
 const getUser = async function (req, res) {
-  let token = req.headers["x-Auth-token"];
+  try {
+    let token = req.headers["x-Auth-token"];
 
-  if (!token) token = req.headers["x-auth-token"];
+    if (!token) token = req.headers["x-auth-token"];
 
-  //If no token is present in the request header return error
-  if (!token) return res.send({ status: false, msg: "token must be present" });
+    //If no token is present in the request header return error
+    if (!token)
+      return res.send({ status: false, msg: "token must be present" });
 
-  let decodedToken = jwt.verify(token, "Batsys SecretKey");
-  if (!decodedToken)
-    return res.send({ status: false, msg: "token is invalid" });
+    let decodedToken = jwt.verify(token, "Batsys SecretKey");
+    if (!decodedToken)
+      return res.send({ status: false, msg: "token is invalid" });
 
-  console.log(decodedToken);
+    console.log(decodedToken);
 
-  let userId = req.params.userId;
+    let userId = req.params.userId;
 
-  let userDetails = await userModel.findById(userId);
+    if (!userId)
+      return res
+        .status(400)
+        .send({ status: false, msg: "Please provide valid user ID" });
 
-  if (!userDetails)
-    return res.send({ status: false, msg: "No such user exists" });
+    if (!isValidObjectId(userId))
+      return res
+        .status(400)
+        .send({ status: false, msg: "Please provide valid user ID" });
 
-  res.send({ status: true, data: userDetails });
+    let userDetails = await userModel.findById(userId);
+
+    if (!userDetails)
+      return res.send({ status: false, msg: "No such user exists" });
+
+    return res.send({ status: true, data: userDetails });
+  } catch (error) {
+    console.log("get User error", error.message);
+    return res.status(500).send({ status: false, msg: error.message });
+  }
 };
 
 module.exports = { createUser, loginUser, getUser };
