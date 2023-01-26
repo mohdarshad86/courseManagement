@@ -9,7 +9,7 @@ app.use(express.json());
 
 mongoose
   .connect(
-    "cluster-string",
+    "mongodb+srv://mohdarshad86:Arshad86@cluster0.r4p7rwf.mongodb.net/BatsysCourse",
     { useNewUrlParser: true }
   )
   .then(() => {
