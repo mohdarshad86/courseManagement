@@ -1,12 +1,10 @@
 const userModel = require("../models/userModel.js");
-// const validation=require("../validation/validation")
+const validation = require("../validation/validation");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 
-function encryptPass(password){
-  return crypto
-  .pbkdf2Sync(password, "key", 100, 32, `sha512`)
-  .toString(`hex`);
+function encryptPass(password) {
+  return crypto.pbkdf2Sync(password, "key", 100, 32, `sha512`).toString(`hex`);
 }
 
 const createUser = async (req, res) => {
@@ -15,18 +13,56 @@ const createUser = async (req, res) => {
 
     let { name, email, password, role } = userData;
 
-    if (!name)
+    name = name.trim();
+    if (!name || name == "")
       return res.status(400).send({ status: false, msg: "Please send name" });
-    if (!email)
+    if (typeof name != "string")
+      return res
+        .status(400)
+        .send({ status: false, message: "Wrong format of name" });
+    if (!validation.validate(name))
+      return res.status(400).send({ status: false, message: "Invalid name" });
+
+    email = email.trim();
+    if (!email || email == "")
       return res.status(400).send({ status: false, msg: "Please send email" });
+    if (typeof email !== "string")
+      return res
+        .status(400)
+        .send({ status: false, message: "wrong format of email" });
+    if (!validation.validateEmail(email))
+      return res
+        .status(400)
+        .send({ status: false, message: "Invalid email address" });
+
     if (!password)
       return res
         .status(400)
-        .send({ status: false, msg: "Please send password" });
+        .send({ status: false, message: "Password is mandatory" });
+    if (typeof password !== "string")
+      return res
+        .status(400)
+        .send({ status: false, message: "Wrong format of password" });
+    if (!validation.validatePassword(password))
+      return res.status(400).send({
+        status: false,
+        message:
+          "Please input correct Alphanumeric password of length 8 to 15 characters",
+      });
 
-    userData.password = encryptPass(password)
+    if (typeof role !== "string")
+      return res
+        .status(400)
+        .send({ status: false, message: "wrong format of title" });
+    if (!["Super Admin", "Admin", "Employee"].includes(role))
+      return res.status(400).send({
+        status: false,
+        message: "Role can only contain Super Admin, Admin, Employee",
+      });
 
-      console.log(password);
+    userData.password = encryptPass(password);
+
+    console.log(password);
 
     const emailExist = await userModel.findOne({ email: email });
 
@@ -49,16 +85,36 @@ const loginUser = async (req, res) => {
   try {
     let { email, password } = req.body;
 
-    if (!email)
+    email = email.trim();
+    if (!email || email == "")
       return res.status(400).send({ status: false, msg: "Please send email" });
+    if (typeof email !== "string")
+      return res
+        .status(400)
+        .send({ status: false, message: "wrong format of email" });
+    if (!validation.validateEmail(email))
+      return res
+        .status(400)
+        .send({ status: false, message: "Invalid email address" });
+
     if (!password)
       return res
         .status(400)
-        .send({ status: false, msg: "Please send password" });
+        .send({ status: false, message: "Password is mandatory" });
+    if (typeof password !== "string")
+      return res
+        .status(400)
+        .send({ status: false, message: "Wrong format of password" });
+    if (!validation.validatePassword(password))
+      return res.status(400).send({
+        status: false,
+        message:
+          "Please input correct Alphanumeric password of length 8 to 15 characters",
+      });
 
-    password = encryptPass(password)
+    password = encryptPass(password);
 
-console.log(password);
+    // console.log(password);
 
     const userExist = await userModel.findOne({
       email: email,

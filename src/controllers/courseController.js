@@ -64,6 +64,17 @@ const updateCourse = async (req, res) => {
 
 const approveCourse = async (req, res) => {
   try {
+
+    //Putting this authorisation here only for this project
+    //but super admin have more powers than just to approve course
+
+    // if (req.role != "Super Admin") {
+    //   return res.status(403).send({
+    //     status: false,
+    //     msg: "You are not autharised to perform this operation",
+    //   });
+    // }
+
     let courseId = req.params.courseId;
 
     let courseExist = await courseModel.findById(courseId);

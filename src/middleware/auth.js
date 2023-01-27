@@ -66,14 +66,14 @@ const autherise = async (req, res, next) => {
   }
 };
 
-const superAuth=async(req, res, next)=>{
-  if (req.role !='Super Admin') {
+const superAuth = async (req, res, next) => {
+  if (req.role != "Super Admin") {
     return res.status(403).send({
       status: false,
       msg: "You are not autharised to perform this operation",
     });
   }
-  next()
-}
+  next();
+};
 
 module.exports = { authenticate, autherise, superAuth };
