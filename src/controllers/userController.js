@@ -1,5 +1,6 @@
 const userModel = require("../models/userModel.js");
 const validation = require("../validation/validation");
+const { isValidObjectId } = require("mongoose");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 
@@ -13,7 +14,6 @@ const createUser = async (req, res) => {
 
     let { name, email, password, role } = userData;
 
-    name = name.trim();
     if (!name || name == "")
       return res.status(400).send({ status: false, msg: "Please send name" });
     if (typeof name != "string")
@@ -23,7 +23,6 @@ const createUser = async (req, res) => {
     if (!validation.validate(name))
       return res.status(400).send({ status: false, message: "Invalid name" });
 
-    email = email.trim();
     if (!email || email == "")
       return res.status(400).send({ status: false, msg: "Please send email" });
     if (typeof email !== "string")
@@ -50,19 +49,19 @@ const createUser = async (req, res) => {
           "Please input correct Alphanumeric password of length 8 to 15 characters",
       });
 
-    if (typeof role !== "string")
-      return res
-        .status(400)
-        .send({ status: false, message: "wrong format of title" });
-    if (!["Super Admin", "Admin", "Employee"].includes(role))
-      return res.status(400).send({
-        status: false,
-        message: "Role can only contain Super Admin, Admin, Employee",
-      });
+    if (role) {
+      if (typeof role !== "string")
+        return res
+          .status(400)
+          .send({ status: false, message: "wrong format of Role" });
+      if (!["Super Admin", "Admin", "Employee"].includes(role))
+        return res.status(400).send({
+          status: false,
+          message: "Role can only contain Super Admin, Admin, Employee",
+        });
+    }
 
     userData.password = encryptPass(password);
-
-    console.log(password);
 
     const emailExist = await userModel.findOne({ email: email });
 
@@ -85,7 +84,6 @@ const loginUser = async (req, res) => {
   try {
     let { email, password } = req.body;
 
-    email = email.trim();
     if (!email || email == "")
       return res.status(400).send({ status: false, msg: "Please send email" });
     if (typeof email !== "string")
@@ -177,9 +175,11 @@ const getUser = async function (req, res) {
     let userDetails = await userModel.findById(userId);
 
     if (!userDetails)
-      return res.send({ status: false, msg: "No such user exists" });
+      return res
+        .status(404)
+        .send({ status: false, msg: "No such user exists" });
 
-    return res.send({ status: true, data: userDetails });
+    return res.status(200).send({ status: true, data: userDetails });
   } catch (error) {
     console.log("get User error", error.message);
     return res.status(500).send({ status: false, msg: error.message });

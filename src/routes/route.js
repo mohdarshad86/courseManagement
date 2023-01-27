@@ -10,6 +10,8 @@ router.post("/loginUser", userController.loginUser);
 router.get("/getUser/:userId", userController.getUser);
 
 //COURSES
+
+//CREATE
 router.post(
   "/createCourse",
   middleWare.authenticate,
@@ -17,6 +19,7 @@ router.post(
   courseController.createCourse
 );
 
+//UPDATE
 router.put(
   "/updateCourse/:courseId",
   middleWare.authenticate,
@@ -24,6 +27,7 @@ router.put(
   courseController.updateCourse
 );
 
+//APPROVAL BY SUPER ADMIN
 router.put(
   "/approveCourse/:courseId",
   middleWare.authenticate,
@@ -31,7 +35,8 @@ router.put(
   courseController.approveCourse
 );
 
-router.post(
+//DELETE
+router.delete(
   "/deleteCourse/:courseId",
   middleWare.authenticate,
   middleWare.autherise,

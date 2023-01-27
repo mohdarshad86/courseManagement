@@ -1,6 +1,5 @@
 const jwt = require("jsonwebtoken");
 const userModel = require("../models/userModel");
-const { isValidObjectId } = require("mongoose");
 
 //AUTHENTICATE
 const authenticate = async (req, res, next) => {
@@ -20,7 +19,6 @@ const authenticate = async (req, res, next) => {
 
         let userData = await userModel.findById(req.userId);
 
-        console.log(userData);
         if (!userData || userData.isDeleted == true) {
           return res
             .status(404)
@@ -39,19 +37,7 @@ const authenticate = async (req, res, next) => {
 //AUTHERISE
 const autherise = async (req, res, next) => {
   try {
-    // let userId = req.params.userId;
 
-    // if (!userId)
-    //   return res
-    //     .status(400)
-    //     .send({ status: false, msg: "Please provide valid user ID" });
-
-    // if (!isValidObjectId(userId))
-    //   return res
-    //     .status(400)
-    //     .send({ status: false, msg: "Please provide valid user ID" });
-
-    console.log(req.userId);
     if (req.role == "Employee") {
       return res.status(403).send({
         status: false,

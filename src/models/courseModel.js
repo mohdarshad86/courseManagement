@@ -13,28 +13,25 @@ const courseSchema = new mongoose.Schema(
     videoUrl: {
       type: String,
       required: true,
-      unique: true,
-      trim: true,
+      // unique: true,
     },
     topics: [{ type: String }],
     duration: {
       type: String,
       required: true,
-      trim: true,
     },
     category: {
       type: String,
       required: true,
-      trim: true,
     },
-    isDeleted:{
-      type:Boolean,
-      default:false
+    isDeleted: {
+      type: Boolean,
+      default: false,
     },
-    superApproved:{
-      type:Boolean,
-      default:false
-    }
+    superApproved: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );
