@@ -157,7 +157,7 @@ const deleteCourse = async (req, res) => {
   try {
     let courseId = req.params.courseId;
 
-    if(!courseId || courseId=="") 
+    if (!courseId || courseId == "")
       return res
         .status(400)
         .send({ status: false, msg: "Please provide valid user ID" });
@@ -177,7 +177,8 @@ const deleteCourse = async (req, res) => {
 
     let deleteCourse = await courseModel.findOneAndUpdate(
       { _id: courseId },
-      { $set: { isDeleted: true } }, {new:true}
+      { $set: { isDeleted: true } },
+      { new: true }
     );
 
     return res
@@ -194,7 +195,7 @@ const getCourses = async (req, res) => {
     let condition = { isDeleted: false };
     if (req.role == "Employee") condition.superApproved = true;
 
-    let coursesData = await courseModel.find(condition);
+    let coursesData = await courseModel.find(condition).sort({ category: 1 });
 
     if (coursesData.length == 0) {
       return res.status(404).send({

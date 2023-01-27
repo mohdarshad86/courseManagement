@@ -25,4 +25,5 @@ Employee -
 View existing course (only if logged in and approved by super admin)
 Use Token for login
 Sort course category wise
+
 Get rewards for progress/completion
